@@ -65,5 +65,7 @@ def validate_dates_from_file(path: str):
     return {'valid_counts': valid_count, 'invalid_counts': invalid_count}
 
 
-# if __name__ == '__main__':
-#     validate_dates_from_file('../data/data.txt')
+if __name__ == '__main__':
+    # print(validate_dates_from_file('../data/data.txt'))
+    # print(validate_dates_from_file('../data/output_file.txt'))
+    print(validate_dates_from_file('../data/output_file_smote.txt'))
