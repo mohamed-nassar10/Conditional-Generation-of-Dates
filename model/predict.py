@@ -4,21 +4,34 @@ sys.path.append(os.path.abspath('../.'))
 
 import argparse
 import pathlib
+from typing import Tuple
 
 
 import numpy as np
 import pandas as pd
 
+import torch
+
+from model.model_class import get_model
+
+
 import datetime
 from dateutil.relativedelta import relativedelta
 
 
-# from model.parser import parse
 from model.parser import map_day, map_month, map_leap_year
 
 
 
-def result_to_date(result):
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+
+
+
+def result_to_date(result: str) -> str :
 
     result = str(result)
 
@@ -38,12 +51,8 @@ def result_to_date(result):
 
 
 
-# # (16830739, 17848869)
-# result_to_date(16830739), result_to_date(17848869)
 
-
-
-def test_model(input_list):
+def predict(input_list: list) -> Tuple[str, str] :
 
 
     X       = np.zeros((1, 10))
@@ -87,15 +96,13 @@ def test_model(input_list):
     X_smote[0, 8] = np.sin(decade * (2 * np.pi / alpha_smote))
     X_smote[0, 9] = np.cos(decade * (2 * np.pi / alpha_smote))
 
-
     # ---
 
-    result       = model(torch.tensor(X).to(device).float())
-    result_smote = model_smote(torch.tensor(X_smote).to(device).float())
-
+    with torch.no_grad():
+        result       = model(torch.tensor(X).to(device).float())
+        result_smote = model_smote(torch.tensor(X_smote).to(device).float())
 
     # ---
-
 
     result       = ''.join(result.detach().cpu().numpy().round().astype(int).astype(str).flatten())
     result_smote = ''.join(result_smote.detach().cpu().numpy().round().astype(int).astype(str).flatten())
@@ -124,40 +131,6 @@ def test_model(input_list):
 
 
 
-# checkpoint = {'model_state_dict'      : model.state_dict(),
-#               'model_smote_state_dict': model_smote.state_dict(),
-#
-#               'scaler_day' : scaler_day,
-#               'scaler_month' : scaler_month,
-#               'scaler_decade' : scaler_decade,
-#
-#               'scaler_day_smote' : scaler_day_smote,
-#               'scaler_month_smote' : scaler_month_smote,
-#               'scaler_decade_smote' : scaler_decade_smote}
-
-
-# torch.save(checkpoint, 'checkpoint.pth.tar')
-
-
-checkpoint = torch.load('checkpoint.pth.tar')
-
-
-scaler_day    = checkpoint['scaler_day']
-scaler_month  = checkpoint['scaler_month']
-scaler_decade = checkpoint['scaler_decade']
-
-scaler_day_smote    = checkpoint['scaler_day_smote']
-scaler_month_smote  = checkpoint['scaler_month_smote']
-scaler_decade_smote = checkpoint['scaler_decade_smote']
-
-
-
-# model       = Model()
-# model_smote = Model()
-
-# model.load_state_dict(checkpoint['model_state_dict'])
-# model_smote.load_state_dict(checkpoint['model_smote_state_dict'])
-
 
 
 parser = argparse.ArgumentParser(description='Run predict.py to predict a date')
@@ -168,7 +141,7 @@ parser.add_argument('-o', '--output-file', help='specify last name', type=str, r
 
 
 
-def path_smote(path):
+def path_smote(path: str) -> str:
 
     p = pathlib.Path(path)
 
@@ -189,37 +162,87 @@ if __name__ == '__main__':
         output_path = args.output
         output_path_smote = path_smote(output_path)
 
+    elif args.input:
+        input_path = args.input
+        output_path = '../data/output_file.txt'
+        output_path_smote = path_smote(output_path)
+
+    elif args.output:
+        input_path = '../data/example_input.txt'
+        output_path = args.output
+        output_path_smote = path_smote(output_path)
 
     else:
         input_path = '../data/example_input.txt'
-        output_path = '../data/example_input.txt'
+        output_path = '../data/output_file.txt'
         output_path_smote = path_smote(output_path)
 
 
-
-
-    data = pd.read_csv(input_path, sep=' ', header=None)
-    data.columns = ['day', 'month', 'leap_year', 'decade']
-
-
-    R       = pd.DataFrame(np.nan, index=np.arange(len(example_input)), columns=['result'])
-    R_smote = pd.DataFrame(np.nan, index=np.arange(len(example_input)), columns=['result_smote'])
+    print(f'Here are paths:-')
+    print(f'\tinput_path:'.ljust(18), f'{input_path}')
+    print(f'\toutput_path:'.ljust(18), f'{output_path}')
+    print(f'\toutput_path_smote:'.ljust(18), f'{output_path_smote}')
 
 
 
-    for i in range(len(data)):
-        R.iloc[i], R_smote.iloc[i] = test_model(data.iloc[i].tolist())
 
 
+    while(True):
 
-    final       = pd.concat([data, R], axis=1)
-    final_smote = pd.concat([data, R_smote], axis=1)
+        ch = input(f'Do you want to proceed ? [y, n]: ')
+
+        if ch not in ['y', 'Y', 'n', 'N']:
+            continue
 
 
+        elif ch in ['y', 'Y']:
 
-    final.to_csv(output_path, sep=' ', header=False, index=False)
-    final_smote.to_csv(output_path_smote, sep=' ', header=False, index=False)
+            # checkpoint = torch.load('checkpoint.pth.tar')
+            checkpoint = torch.load('checkpoint.pth.tar', map_location=torch.device('cpu'))
 
+            scaler_day = checkpoint['scaler_day']
+            scaler_month = checkpoint['scaler_month']
+            scaler_decade = checkpoint['scaler_decade']
+
+            scaler_day_smote = checkpoint['scaler_day_smote']
+            scaler_month_smote = checkpoint['scaler_month_smote']
+            scaler_decade_smote = checkpoint['scaler_decade_smote']
+
+            alpha       = checkpoint['alpha']
+            alpha_smote = checkpoint['alpha_smote']
+
+            model = get_model()
+            model_smote = get_model()
+
+            model.eval()
+            model_smote.eval()
+
+            model.load_state_dict(checkpoint['model_state_dict'])
+            model_smote.load_state_dict(checkpoint['model_smote_state_dict'])
+
+
+            data = pd.read_csv(input_path, sep=' ', header=None)
+            data.columns = ['day', 'month', 'leap_year', 'decade']
+
+            R       = pd.DataFrame(np.nan, index=np.arange(len(data)), columns=['result'])
+            R_smote = pd.DataFrame(np.nan, index=np.arange(len(data)), columns=['result_smote'])
+
+            for i in range(len(data)):
+                R.iloc[i], R_smote.iloc[i] = predict(data.iloc[i].tolist())
+
+            final       = pd.concat([data, R], axis=1)
+            final_smote = pd.concat([data, R_smote], axis=1)
+
+            final.to_csv(output_path, sep=' ', header=False, index=False)
+            final_smote.to_csv(output_path_smote, sep=' ', header=False, index=False)
+
+            print(f'Done.')
+            break
+
+
+        else:
+            print(f'Done.')
+            break
 
 
 

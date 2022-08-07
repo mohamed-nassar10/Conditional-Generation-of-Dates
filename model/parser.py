@@ -38,7 +38,7 @@ map_leap_year = {'[False]': int(0), '[True]': int(1)}
 
 
 
-def parse(path):
+def parse(path: str) -> pd.DataFrame :
 
     data = pd.read_csv(path, sep=' ', header=None, encoding_errors='ignore')
 
@@ -68,12 +68,13 @@ def parse(path):
 
 
 
-def create(path):
+def create(path: str) -> pd.DataFrame :
 
     data = pd.read_csv(path, sep=' ', header=None, encoding_errors='ignore')
 
     data.columns = ['day', 'month', 'leap_year', 'decade', 'date']
 
+    # data.date = pd.to_datetime(data.date, format='%d-%m-%Y', infer_datetime_format=False)
     # data.date = pd.to_datetime(data.date, format='%d-%m-%Y', infer_datetime_format=False, errors='ignore')
     # data.date = pd.to_datetime(data.date, format='%d-%m-%Y', infer_datetime_format=False, errors='coerce')
     data.date = data.date.apply(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y') if type(x)==str else np.NaN)
