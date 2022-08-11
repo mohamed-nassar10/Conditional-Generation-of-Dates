@@ -2,6 +2,13 @@ import os
 import sys
 sys.path.append(os.path.abspath('../.'))
 
+import warnings
+
+# warnings.simplefilter('ignore', UserWarning)
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn', append=True)
+
+
+
 import argparse
 import pathlib
 from typing import Tuple
