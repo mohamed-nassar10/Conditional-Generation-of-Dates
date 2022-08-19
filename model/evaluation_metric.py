@@ -54,6 +54,9 @@ def evaluate(path: str) -> Dict[str, int]:
     predict_df = create(path)    # get day, month, leap_year and decade features from
                                  # predicted date for evaluation metrics
 
+    data_len = len(data)
+    data_str = len(str(data_len))
+
 
     for i in range(len(data)):
 
@@ -64,10 +67,10 @@ def evaluate(path: str) -> Dict[str, int]:
         flag_ls.append(data.decade.iloc[i] != predict_df.decade.iloc[i])
 
 
-        valid_day       += (1 if flag_ls[0] else 0)
-        valid_month     += (1 if flag_ls[1] else 0)
-        valid_leap_year += (1 if flag_ls[2] else 0)
-        valid_decade    += (1 if flag_ls[3] else 0)
+        valid_day       += (0 if flag_ls[0] else 1)
+        valid_month     += (0 if flag_ls[1] else 1)
+        valid_leap_year += (0 if flag_ls[2] else 1)
+        valid_decade    += (0 if flag_ls[3] else 1)
 
 
         if any(flag_ls):
@@ -93,6 +96,8 @@ def evaluate(path: str) -> Dict[str, int]:
     score_leap_year = eval_score(leap_year_yHat.flatten(), leap_year_y.flatten())
     score_decade    = eval_score(decade_yHat.flatten(), decade_y.flatten())
 
+
+    print()
 
     print(f'score_day:'.ljust(16), f'R2=({score_day[0]:0.4f}), MAE=({score_day[1]:0.4f}), '
                                    f'MSE=({score_day[2]:0.4f}), MSLE=({score_day[3]:0.4f}), '
@@ -126,10 +131,21 @@ def evaluate(path: str) -> Dict[str, int]:
     print()
 
 
-    print(f'valid_day:'.ljust(16), f'{valid_day}')
-    print(f'valid_month:'.ljust(16), f'{valid_month}')
-    print(f'valid_leap_year:'.ljust(16), f'{valid_leap_year}')
-    print(f'valid_decade:'.ljust(16), f'{valid_decade}')
+    print(f'valid_day:'.ljust(16), f'{valid_day},'.ljust(data_str+1),
+          f'invalid_day:'.ljust(22), f'{data_len - valid_day}'.ljust(data_str))
+
+    print(f'valid_month:'.ljust(16), f'{valid_month},'.ljust(data_str+1),
+          f'invalid_month:'.ljust(22), f'{data_len - valid_month}'.ljust(data_str))
+
+    print(f'valid_leap_year:'.ljust(16), f'{valid_leap_year},'.ljust(data_str+1),
+          f'invalid_leap_year:'.ljust(22), f'{data_len - valid_leap_year}'.ljust(data_str))
+
+    print(f'valid_decade:'.ljust(16), f'{valid_decade},'.ljust(data_str+1),
+          f'invalid_decade:'.ljust(22), f'{data_len - valid_decade}'.ljust(data_str))
+
+    print(f'-'.ljust(16+22+data_str+data_str+5, '-'))
+    print(f'Dataset length:'.ljust(16+22+data_str+3), f'{data_len}'.ljust(data_str))
+
     print()
 
 
@@ -145,8 +161,9 @@ def evaluate(path: str) -> Dict[str, int]:
 
 if __name__ == '__main__':
     # print(evaluate('../data/data.txt'))
-    print(evaluate('../data/output_file.txt'))
-    print(evaluate('../data/output_file_smote.txt'))
+    print(evaluate('../data/output_file.txt'), '\n\n')
+    print(evaluate('../data/output_file_smote.txt'), '\n\n')
+
 
 
 

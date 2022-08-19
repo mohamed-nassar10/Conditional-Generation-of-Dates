@@ -1,0 +1,53 @@
+
+score_day:       R2=(-1.0713), MAE=(2.3229), MSE=(8.2451), MSLE=(0.8439), RMSE=(2.8714)
+score_month:     R2=(0.9955), MAE=(0.0539),MSE=(0.0539), MSLE=( 0.0014),RMSE=(0.2322)
+score_leap_year: R2=(-1.1407), MAE=(0.3945), MSE=(0.3945), MSLE=(0.1896), RMSE=(0.6281)
+score_decade:    R2=(1.0000), MAE=(0.0041), MSE=(0.0041), MSLE=( 0.0000), RMSE=(0.0640)
+
+cov_day:       4.2393
+cov_month:     11.6943
+cov_leap_year: 0.2173
+cov_decade:    133.5907
+
+corr_day:       -0.0034
+corr_month:     0.9979
+corr_leap_year: 0.0314
+corr_decade:    1.0000
+
+valid_day:       206,  invalid_day:           1259
+valid_month:     1386, invalid_month:         79  
+valid_leap_year: 887,  invalid_leap_year:     578 
+valid_decade:    1459, invalid_decade:        6   
+---------------------------------------------------
+Dataset length:                               1465
+
+{'valid_counts': 115, 'invalid_counts': 1350} 
+
+
+
+score_day:       R2=(-0.9752), MAE=(2.2614), MSE=(7.8628), MSLE=(0.7986), RMSE=(2.8041)
+score_month:     R2=(0.9995), MAE=(0.0061),MSE=(0.0061), MSLE=( 0.0005),RMSE=(0.0784)
+score_leap_year: R2=(-0.7629), MAE=(0.3249), MSE=(0.3249), MSLE=(0.1561), RMSE=(0.5700)
+score_decade:    R2=(0.9963), MAE=(0.0532), MSE=(0.4969), MSLE=( 0.0000), RMSE=(0.7049)
+
+cov_day:       4.0594
+cov_month:     11.9398
+cov_leap_year: 0.1958
+cov_decade:    134.8265
+
+corr_day:       0.0221
+corr_month:     0.9997
+corr_leap_year: 0.1464
+corr_decade:    0.9982
+
+valid_day:       220,  invalid_day:           1245
+valid_month:     1456, invalid_month:         9   
+valid_leap_year: 989,  invalid_leap_year:     476 
+valid_decade:    1451, invalid_decade:        14  
+---------------------------------------------------
+Dataset length:                               1465
+
+{'valid_counts': 148, 'invalid_counts': 1317} 
+
+
+

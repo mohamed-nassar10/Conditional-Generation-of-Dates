@@ -61,17 +61,13 @@ def result_to_date(result: str) -> str :
 
 def predict(input_list: list) -> Tuple[str, str] :
 
-
     X       = np.zeros((1, 10))
     X_smote = np.zeros((1, 10))
-
-
 
     day       = np.array(map_day[input_list[0]])
     month     = np.array(map_month[input_list[1]])
     leap_year = map_leap_year[input_list[2]]
     decade    = np.array(input_list[3].strip('[]')).astype('int64')
-
 
     X[0, 0] = scaler_day.transform(day.reshape(-1, 1)).flatten()
     X[0, 1] = np.sin(day * (2 * np.pi / 7))
@@ -103,17 +99,30 @@ def predict(input_list: list) -> Tuple[str, str] :
     X_smote[0, 8] = np.sin(decade * (2 * np.pi / alpha_smote))
     X_smote[0, 9] = np.cos(decade * (2 * np.pi / alpha_smote))
 
+    flag = [model.training, model_smote.training]
+
     # ---
 
-    with torch.no_grad():
-        result       = model(torch.tensor(X).to(device).float())
-        result_smote = model_smote(torch.tensor(X_smote).to(device).float())
+    model.eval()
+    model_smote.eval()
+
+    result       = model(torch.tensor(X).to(device).float())
+    result_smote = model_smote(torch.tensor(X_smote).to(device).float())
+
+    # if all(flag):
+    #   model.train()
+    #   model_smote.train()
+
+    if flag[0]:
+        model.train()
+
+    if flag[1]:
+        model_smote.train()
 
     # ---
 
     result       = ''.join(result.detach().cpu().numpy().round().astype(int).astype(str).flatten())
     result_smote = ''.join(result_smote.detach().cpu().numpy().round().astype(int).astype(str).flatten())
-
 
 
     return result_to_date(result), result_to_date(result_smote)
@@ -153,6 +162,7 @@ def path_smote(path: str) -> str:
     p = pathlib.Path(path)
 
     return path.replace(p.stem, p.stem + '_smote')
+
 
 
 
